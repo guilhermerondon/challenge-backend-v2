@@ -73,8 +73,10 @@ class PokemonBattleView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        trainers_p1 = TrainerPokemon.objects.filter(pokemon1=p1).values_list("trainer_id", flat=True)
-        trainers_p2 = TrainerPokemon.objects.filter(pokemon2=p2).values_list("trainer_id", flat=True)
+
+        trainers_p1 = TrainerPokemon.objects.filter(pokemon=p1).values_list("trainer_id", flat=True)
+        trainers_p2 = TrainerPokemon.objects.filter(pokemon=p2).values_list("trainer_id", flat=True)
+
 
         if set(trainers_p1).intersection(set(trainers_p2)):
             return Response(
