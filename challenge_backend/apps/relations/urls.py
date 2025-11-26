@@ -1,8 +1,7 @@
 from django.urls import path
-from .views import AddPokemonToTrainerView
-from .views import RemovePokemonFromTrainerView
+from .views import AddPokemonToTrainerView, RemovePokemonFromTrainerView
 
 urlpatterns = [
-    path('add/<int:trainer_id>/<int:pokemon_id>/', AddPokemonToTrainerView.as_view()),
-    path('remove/<int:trainer_id>/<int:pokemon_id>/', RemovePokemonFromTrainerView.as_view()),
+    path('add/', AddPokemonToTrainerView.as_view(), name="add_pokemon"),
+    path('remove/', RemovePokemonFromTrainerView.as_view(), name="remove_pokemon"),
 ]
