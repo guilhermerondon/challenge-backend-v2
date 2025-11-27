@@ -220,8 +220,6 @@ Resposta
 
 # 🧪 Rodando os Testes
 
-Da raiz do projeto:
-
 python manage.py test
 
 
