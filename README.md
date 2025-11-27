@@ -46,8 +46,6 @@ Estrutura limpa
 
 CRUD completo
 
-Relacionamentos N:N
-
 Testes automatizados
 
 ## 🛠 Tecnologias Utilizadas
