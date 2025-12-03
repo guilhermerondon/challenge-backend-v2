@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -79,8 +79,19 @@ WSGI_APPLICATION = 'src.core.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        # 2. Host: CRÍTICO! 'db' é o nome do serviço PostgreSQL no docker-compose.yml.
+        #    O Docker trata o nome do serviço como um endereço de rede.
+        'HOST': 'db', 
+        
+        # 3. Porta Padrão do PostgreSQL
+        'PORT': 5432,
+        
+        # 4. Credenciais: Lidas do ambiente, definidas no docker-compose.yml
+        #    Isso garante que as senhas não fiquem hardcoded.
+        'NAME': os.environ.get('POSTGRES_DB', 'pokemon_db'),
+        'USER': os.environ.get('POSTGRES_USER', 'dev_user'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD', 'your_strong_password_here'),
     }
 }
 

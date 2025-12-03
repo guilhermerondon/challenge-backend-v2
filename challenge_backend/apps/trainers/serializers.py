@@ -4,6 +4,6 @@ from .models import Trainer
 class TrainerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trainer
-        fields = ["id", "name", "created_at", "updated_at"]
+        fields = ["id", "name", "age", "created_at", "updated_at"]
         read_only_fields = ["created_at", "updated_at"]
 

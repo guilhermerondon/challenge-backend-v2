@@ -16,9 +16,12 @@ services:
   app:
     build: .                    
     container_name: django_pokemon_api
-    command: >
-      sh -c "python challenge_backend/manage.py migrate &&
-             python challenge_backend/manage.py runserver 0.0.0.0:8000"
+    environment:
+      - PYTHONPATH=/app/challenge_backend
+      - POSTGRES_DB=pokemon_db
+      - POSTGRES_USER=dev_user
+      - POSTGRES_PASSWORD=your_strong_password_here
+    command: sh -c "python challenge_backend/manage.py migrate && python challenge_backend/manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
