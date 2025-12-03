@@ -110,8 +110,9 @@ source venv/bin/activate
 
 ## 📦 5. Instalar Dependências
 
+PowerShell
 ```
-**pip install -r requirements.txt**
+**python -m pip install -r requirements.txt**
 ```
 
 Dependências instaladas automaticamente:
@@ -230,4 +231,3 @@ Pokémons
 Relações
 
 Batalha
-# challenge-backend-v2
