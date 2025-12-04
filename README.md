@@ -12,9 +12,11 @@ Tecnologias Utilizadas
 
 Estrutura do Projeto
 
-Instalação e Setup
+Instalação e Setup (Docker)
 
 Rodando o Servidor
+
+Endpoints da API
 
 Coleção do Postman
 
@@ -29,7 +31,7 @@ Rodando os Testes
 Esta API permite:
 
 ✔️ Criar e gerenciar treinadores
-✔️ Criar e gerenciar pokémons
+✔️ Criar e gerenciar pokémons (com busca de atributos na PokeAPI)
 ✔️ Relacionar treinadores ↔ pokémons
 ✔️ Simular batalhas automáticas entre treinadores
 ✔️ Atribuir um pokémon vencedor baseado em atributos
@@ -56,7 +58,9 @@ Django 5
 
 Django REST Framework
 
-SQLite (padrão do Django)
+Banco de Dados PostgreSQL
+
+Containers Docker e Docker Compose
 
 Postman (testes da API)
 
@@ -64,170 +68,91 @@ VS Code
 
 
 ### 💿 Instalação e Setup
+O ambiente completo (incluindo o servidor PostgreSQL) é configurado e inicializado via Docker Compose.
 
-```
-✔️ 1. Instalar Python
+- Pré-requisitos (Ferramentas de Desenvolvimento):
 
-https://www.python.org/downloads/
+1 - Git: Para clonar o repositório.
 
-⚠️ Marque “Add Python to PATH”
-```
+2 - Docker Desktop: Instalado e em execução (necessário para rodar os containers).
 
-```
-✔️ 2. Instalar Git
-
-https://git-scm.com/downloads
-```
+3 - VS Code (ou editor de sua preferência).
 
 
-```
-✔️ 3. Instalar VS Code
-
-https://code.visualstudio.com/
-```
-
-### Extensões recomendadas:
-
-Python
-
-Django
-
-## 📥 4. Clonar o Projeto
+## 1. Clonar o Projeto
 ```
 git clone https://github.com/SEU_USUARIO/challenge-backend.git
 cd challenge-backend
 ```
 
-###  🧱 Criar Ambiente Virtual (Recomendado)
-Windows
-python -m venv venv
-venv\Scripts\activate
+## 2. Iniciar o Ambiente
+O comando a seguir irá: construir a imagem Python (Dockerfile), instalar todas as dependências (incluindo psycopg2), iniciar o container PostgreSQL, rodar as migrações, e iniciar o servidor Django.
 
-Linux/Mac
-python -m venv venv
-source venv/bin/activate
-
-
-## 📦 5. Instalar Dependências
-
-PowerShell
 ```
-**python -m pip install -r requirements.txt**
+docker compose up -d --build
 ```
 
-Dependências instaladas automaticamente:
+
+## 3. Verificar Status
+Confirme que ambos os containers (postgres_db e django_pokemon_api) estão rodando:
+
 ```
-Django 5.x
-
-Django REST Framework
-
-TZdata
-
-Outras libs necessárias ao projeto
+docker compose ps
 ```
 
-## 📁 6. Entrar na pasta do projeto Django
-**cd challenge_backend**
+A API rodará em:
+👉 http://localhost:8000/
 
-## 🛠 7. Criar Banco de Dados
-**python manage.py migrate**
+## 🌐 Endpoints da API
 
-## ▶️ 8. Rodar o Servidor
-**python manage.py runserver**
+| Módulo | Método | Rota | Descrição |
+| :--- | :--- | :--- | :--- |
+| **Treinadores** | GET, POST, PATCH, DELETE | `/trainers/` ou `/trainers/{id}/` | CRUD completo para gerenciar treinadores. |
+| **Pokémons** | GET, POST, PATCH, DELETE | `/pokemons/` ou `/pokemons/{id}/` | CRUD completo. O **POST** inicia a busca de atributos (Peso, Altura, Foto) na PokeAPI. |
+| **Relações** | POST | `/relations/add/` | Adiciona um Pokémon a um Treinador (requer `trainer_id` e `pokemon_id`). |
+| **Relações** | DELETE | `/relations/remove/` | Remove a associação de um Pokémon com um Treinador (requer `trainer_id` e `pokemon_id`). |
+| **Batalha** | POST | `/battle/{id1}/{id2}/` | Simula uma batalha entre dois Pokémons. **Ganha o Pokémon com maior peso.** |
 
+## 🔗 Coleção do Postman
 
-# A API rodará em:
-
-👉 http://127.0.0.1:8000/
-
-🔗 Coleção do Postman
-Collection pública para testes:
+Coleção pública para testes de todos os endpoints (incluindo regras de batalha)
 
 ```
 ✅ https://elements.getpostman.com/redirect?entityId=37984684-2f49a341-212a-42c8-93b5-d34974dd3d65&entityType=collection
 ```
 
-Inclui:
+## 📜 Exemplos de Requests e Responses
 
-CRUD completo de Treinadores
+### ➕ Adicionar Pokémon ao treinador
+**POST /relations/add/1/25/**
 
-CRUD completo de Pokémons
-
-Relações
-
-Batalha
-
-Ambiente com variável base_url
-
-Exemplos de requests prontos
-
-## 🌐 Endpoints da API
-
-👤 Treinadores
-Método	Rota	Descrição
-GET	/trainers/	Lista treinadores
-POST	/trainers/	Cria treinador
-GET	/trainers/{id}/	Detalhes
-PUT	/trainers/{id}/	Edita
-DELETE	/trainers/{id}/	Remove
-
-🐾 Pokémons
-Método	Rota	Descrição
-GET	/pokemons/	Lista
-POST	/pokemons/	Cria
-GET	/pokemons/{id}/	Detalhes
-PUT	/pokemons/{id}/	Edita
-DELETE	/pokemons/{id}/	Remove
-
-🔗 Relação Treinador ↔ Pokémon
-Método	Rota	Função
-POST	/relations/add/{trainer_id}/{pokemon_id}/	Adiciona
-DELETE	/relations/remove/{trainer_id}/{pokemon_id}/	Remove
-
-⚔️ Batalha Pokémon
-Método	Rota	Descrição
-POST	/battle/{trainer1}/{trainer2}/	Simula batalha
-
-
-##  📜 Exemplos de Requests e Responses
-➕ Adicionar Pokémon ao treinador
-POST /relations/add/1/25/
-
-
-Resposta
 ```
 {
-  "id": 3,
-  "trainer": 1,
-  "pokemon": 25,
-  "added_at": "2025-01-15T18:22:40Z"
+  "id": 3,
+  "trainer": 1,
+  "pokemon": 25,
+  "added_at": "2025-01-15T18:22:40Z"
 }
 ```
 
-⚔️ Simular Batalha
-POST /battle/1/2/
+### ⚔️ Simular Batalha
+**POST /battle/1/2/**
 
-
-Resposta
 ```
 {
-  "winner": "Ash",
-  "loser": "Misty",
-  "pokemon_used": "Pikachu"
+  "winner": "Ash",
+  "loser": "Misty",
+  "pokemon_used": "Pikachu"
 }
 ```
 
-# 🧪 Rodando os Testes
+## 🧪 Rodando os Testes (Unitários e Integração)
+Execute os testes diretamente no container do Django para garantir que a lógica e a integração (PokeAPI, regras de batalha) estejam corretas.
 
-python manage.py test
+### 1. Comando de Execução: Use ```docker compose exec``` para rodar os testes em todas as aplicações (este comando resolve o problema de caminho):
 
+```
+docker compose exec app sh -c "cd challenge_backend && python manage.py test pokemons trainers relations battle"
+```
 
-Os testes cobrem:
-
-Trainers
-
-Pokémons
-
-Relações
-
-Batalha
+### 2. Resultado Esperado: O sistema deve retornar OK (sucesso total).
