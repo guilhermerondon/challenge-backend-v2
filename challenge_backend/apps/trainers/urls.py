@@ -1,7 +1,10 @@
-from django.urls import path
-from .views import TrainerListCreateView, TrainerDetailView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import TrainerViewSet
+
+router = DefaultRouter()
+router.register(r'', TrainerViewSet, basename='trainer')
 
 urlpatterns = [
-    path('', TrainerListCreateView.as_view()),
-    path('<int:pk>/', TrainerDetailView.as_view()),
+    path('', include(router.urls)),
 ]

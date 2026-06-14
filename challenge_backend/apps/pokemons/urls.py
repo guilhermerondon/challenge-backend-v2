@@ -1,8 +1,10 @@
-from django.urls import path
-from .views import PokemonCreateView, PokemonListView, PokemonDetailView
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import PokemonViewSet
+
+router = DefaultRouter()
+router.register(r'', PokemonViewSet, basename='pokemon')
 
 urlpatterns = [
-    path("", PokemonListView.as_view(), name="pokemon-list"),
-    path("create/", PokemonCreateView.as_view(), name="pokemon-create"),
-    path("<int:pk>/", PokemonDetailView.as_view(), name="pokemon-detail"),
+    path('', include(router.urls)),
 ]

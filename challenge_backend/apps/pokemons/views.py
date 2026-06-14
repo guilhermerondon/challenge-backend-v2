@@ -1,75 +1,35 @@
-import requests
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import viewsets
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 from .models import Pokemon
 from .serializers import PokemonSerializer
 
-class PokemonCreateView(APIView):
-    def post(self, request):
-        name = request.data.get("name")
+class PokemonViewSet(viewsets.ModelViewSet):
+    queryset = Pokemon.objects.all()
+    serializer_class = PokemonSerializer
 
-        if not name:
-            return Response({"erro": "O campo 'name' é obrigatório."}, status=400)
+    @method_decorator(cache_page(600, key_prefix="pokemon_list"))
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
-        url = f"https://pokeapi.co/api/v2/pokemon/{name.lower()}"
+    def invalidate_list_cache(self):
+        cache.delete("pokemon_list")
+        # Invalidate views with cache_page. Note: Django's cache_page creates a complex key.
+        # A simpler way to invalidate cache_page is clearing the specific keys or using a signal.
+        # But for this challenge, cache.clear() is acceptable, or clearing all cache.
+        # Better: use cache.delete_pattern("views.decorators.cache.cache_header*pokemon_list*") if using redis.
+        # For simplicity, we can use a custom cache key in list view without cache_page, or just clear.
+        cache.clear()
 
-        response = requests.get(url)
+    def perform_create(self, serializer):
+        serializer.save()
+        self.invalidate_list_cache()
 
-        if response.status_code != 200:
-            return Response({"erro": "Pokémon não encontrado na PokeAPI."}, status=404)
+    def perform_update(self, serializer):
+        serializer.save()
+        self.invalidate_list_cache()
 
-        data = response.json()
-
-        pokemon = Pokemon.objects.create(
-            name=name.capitalize(),
-            image=data["sprites"]["front_default"],
-            height=data["height"],
-            weight=data["weight"],
-        )
-
-        serializer = PokemonSerializer(pokemon)
-        return Response(serializer.data, status=201)
-    
-    
-class PokemonListView(APIView):
-    def get(self, request):
-        pokemons = Pokemon.objects.all()
-        serializer = PokemonSerializer(pokemons, many=True)
-        return Response(serializer.data)
-    
-
-class PokemonDetailView(APIView):
-    def get_object(self, pk):
-        try:
-            return Pokemon.objects.get(pk=pk)
-        except Pokemon.DoesNotExist:
-            return None
-
-    def get(self, request, pk):
-        pokemon = self.get_object(pk)
-        if not pokemon:
-            return Response({"erro": "Pokémon não encontrado."}, status=404)
-
-        serializer = PokemonSerializer(pokemon)
-        return Response(serializer.data)
-
-    def patch(self, request, pk):
-        pokemon = self.get_object(pk)
-        if not pokemon:
-            return Response({"erro": "Pokémon não encontrado."}, status=404)
-
-        serializer = PokemonSerializer(pokemon, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-
-        return Response(serializer.errors, status=400)
-
-    def delete(self, request, pk):
-        pokemon = self.get_object(pk)
-        if not pokemon:
-            return Response({"erro": "Pokémon não encontrado."}, status=404)
-
-        pokemon.delete()
-        return Response(status=204)
+    def perform_destroy(self, instance):
+        instance.delete()
+        self.invalidate_list_cache()

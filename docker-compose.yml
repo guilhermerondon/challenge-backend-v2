@@ -13,6 +13,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
+
   app:
     build: .                    
     container_name: django_pokemon_api
@@ -21,13 +27,15 @@ services:
       - POSTGRES_DB=pokemon_db
       - POSTGRES_USER=dev_user
       - POSTGRES_PASSWORD=your_strong_password_here
+      - REDIS_URL=redis://redis:6379/1
     command: sh -c "python challenge_backend/manage.py migrate && python challenge_backend/manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
       - "8000:8000"               
     depends_on:
-      - db                       
+      - db
+      - redis                       
 
 volumes:
   postgres_data:
